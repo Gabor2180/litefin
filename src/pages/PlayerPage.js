@@ -297,6 +297,9 @@ class PlayerPage extends Page {
                 androidAdapter.setFullscreen(true);
             }
 
+            // Automatically switch mobile viewport to landscape orientation for video playback
+            androidAdapter.setOrientation('landscape');
+
             // Expose debug helper to force player error screen anytime via console
             window.__forcePlayerError = (msg = 'Simulated playback error for UI testing') => this._showError(msg);
 
@@ -5208,6 +5211,9 @@ class PlayerPage extends Page {
         if (platformInfo.isAndroid) {
             androidAdapter.setFullscreen(true);
         }
+
+        // Restore natural screen auto-rotation upon exiting the video player
+        androidAdapter.setOrientation('auto');
 
         // Restore global clock visibility when leaving playback
         globalClock.setVisibility(true);

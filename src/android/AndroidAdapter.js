@@ -251,6 +251,53 @@ class AndroidAdapter {
     }
 
     /**
+     * Controls screen orientation on mobile devices.
+     * Automatically locks the view to landscape orientation during video playback
+     * and restores standard auto-rotation when leaving the player.
+     *
+     * @param {'landscape'|'portrait'|'auto'|'unspecified'} orientation - Target orientation
+     */
+    setOrientation(orientation = 'auto') {
+        // Dedicated TV hardware runs fixed horizontal displays; bypass changes
+        if (this.isAndroidTv) {
+            return;
+        }
+
+        log.debug(`Setting orientation to: ${orientation}`);
+
+        try {
+            // Forward orientation instruction to native LitefinAndroid bridge
+            if (typeof window !== 'undefined' && typeof window.LitefinAndroid?.setOrientation === 'function') {
+                window.LitefinAndroid.setOrientation(orientation);
+                return;
+            }
+
+            // Fallback to legacy AndroidBridge interface if active
+            if (typeof window !== 'undefined' && typeof window.AndroidBridge?.setOrientation === 'function') {
+                window.AndroidBridge.setOrientation(orientation);
+                return;
+            }
+
+            // Fallback to W3C Screen Orientation API for modern mobile web views / PWAs
+            if (typeof window !== 'undefined' && window.screen?.orientation) {
+                if (orientation === 'landscape' || orientation === 'sensorLandscape') {
+                    if (typeof window.screen.orientation.lock === 'function') {
+                        window.screen.orientation.lock('landscape').catch((err) => {
+                            log.debug('screen.orientation.lock failed or requires user gesture:', err);
+                        });
+                    }
+                } else {
+                    if (typeof window.screen.orientation.unlock === 'function') {
+                        window.screen.orientation.unlock();
+                    }
+                }
+            }
+        } catch (e) {
+            log.warn('Failed setting screen orientation in AndroidAdapter:', e);
+        }
+    }
+
+    /**
      * ========================================================================
      * Centralized Hardware Back Dispatcher
      * ========================================================================

@@ -1,5 +1,6 @@
 package org.litefin.app
 
+import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Bundle
@@ -620,6 +621,48 @@ class MainActivity : TauriActivity() {
     @JavascriptInterface
     fun setAspectRatio(mode: String) {
       setResizeMode(mode)
+    }
+
+    /**
+     * Controls native screen orientation dynamically.
+     * Used by mobile layouts to lock landscape mode during video playback
+     * and seamlessly restore natural sensor auto-rotation upon exit.
+     *
+     * @param orientation String indicating target mode ("landscape", "portrait", "auto")
+     */
+    @JavascriptInterface
+    fun setOrientation(orientation: String) {
+      // Execute orientation adjustment directly on the main UI thread
+      runOnUiThread {
+        try {
+          // TV and Leanback platforms have fixed physical landscape displays
+          if (isTv()) {
+            return@runOnUiThread
+          }
+
+          // Evaluate requested target orientation
+          when (orientation.lowercase()) {
+            "landscape", "sensorlandscape" -> {
+              // Lock activity to sensor-aware landscape orientation
+              this@MainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            }
+            "portrait", "sensorportrait" -> {
+              // Lock activity to sensor-aware portrait orientation
+              this@MainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+            }
+            "auto", "unspecified", "user" -> {
+              // Restore default sensor-driven auto-rotation
+              this@MainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+            else -> {
+              // Safe fallback to unspecified system auto-rotation
+              this@MainActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+          }
+        } catch (e: Exception) {
+          // Suppress potential security or window manager exceptions gracefully
+        }
+      }
     }
   }
 }
