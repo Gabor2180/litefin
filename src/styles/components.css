@@ -1560,19 +1560,29 @@ html[data-litefin-scaled] .settings-modal,
 html[data-litefin-touch] .settings-modal,
 html[data-litefin-scaled] .player-media-info-modal,
 html[data-litefin-touch] .player-media-info-modal,
+html[data-litefin-scaled] .media-info-modal,
+html[data-litefin-touch] .media-info-modal,
 html[data-litefin-scaled] .fav-languages-modal,
 html[data-litefin-touch] .fav-languages-modal {
     /*
-     * Full width with clean side margins across both standard and CSS-zoomed viewports.
-     * Uses percentage and calc relative to overlay container rather than vw units,
-     * ensuring proper expansive width even when documentElement zoom scaling is active.
+     * Proportional modal dialog with balanced max-width:
+     * Restricts width to 620px to prevent awkward edge-to-edge stretching in landscape/tablet viewports,
+     * while utilizing calc(100% - 32px) for comfortable 16px edge margins on narrow portrait screens.
      */
-    width: calc(100% - 40px) !important;
-    max-width: calc(100% - 40px) !important;
+    width: calc(100% - 32px) !important;
+    max-width: 620px !important;
     min-width: 0 !important;
-    max-height: 88vh !important;
-    max-height: calc(100% - 100px) !important;
+    max-height: 90vh !important;
+    max-height: calc(100% - 32px) !important;
     border-radius: 24px !important;
+    box-sizing: border-box !important;
+}
+
+html[data-litefin-scaled] .media-info-scrollable,
+html[data-litefin-touch] .media-info-scrollable {
+    padding: 14px 20px !important;
+    max-height: calc(90vh - 80px) !important;
+    max-height: calc(100% - 80px) !important;
     box-sizing: border-box !important;
 }
 
